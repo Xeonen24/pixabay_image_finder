@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import Header from './Header';
 
@@ -6,6 +6,7 @@ export default function Main() {
     const [query, setQuery] = useState('');
     const [results, setResults] = useState([]);
     const [page, setPage] = useState(0);
+    const [selectedImage, setSelectedImage] = useState(null);
 
     async function fetchImages() {
         const encodedQuery = encodeURIComponent(query);
@@ -26,14 +27,22 @@ export default function Main() {
         setPage(0);
     }
 
+    const openImage = (imageUrl) => {
+        setSelectedImage(imageUrl);
+    }
+
+    const closeImage = () => {
+        setSelectedImage(null);
+    }
+
     return (
         <div className="h-screen p-5">
             <Header query={query} setQuery={setQuery} handleSearch={handleSearch} clearImages={clearImages} results={results} />
             <div className="flex justify-center mt-10 flex-wrap">
                 {results.map((result, index) => (
-                    <div key={result.id} className="w-1/3 p-3 max-w-[700px]">
+                    <div key={result.id} className="w-1/3 p-3 max-w-[700px]" onClick={() => openImage(result.largeImageURL)}>
                         <img
-                            className='h-full object-cover rounded-lg'
+                            className='h-full object-cover rounded-lg cursor-pointer'
                             src={result.largeImageURL}
                             alt={result.tags}
                         />
@@ -49,6 +58,17 @@ export default function Main() {
                     >
                         Load More
                     </button>
+                </div>
+            )}
+            <div className='fixed bottom-0 mb-2 bg-gray-100 p-1 rounded-xl'>
+                Crafted with ❤️ by <a className='text-sky-500' href="https://github.com/Xeonen24/">Xeon</a>
+            </div>
+            {selectedImage && (
+                <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-75 z-50">
+                    <div className="max-w-screen-xl w-full">
+                        <img src={selectedImage} alt="Full-size" className="w-full h-auto" />
+                        <button className="absolute top-5 right-5 text-white text-xl border-white border-2 px-3 py-1 rounded-full hover:border-gray-300 hover:text-gray-300" onClick={closeImage}>X</button>
+                    </div>
                 </div>
             )}
         </div>
